@@ -5,6 +5,7 @@ package com.elevator.scheduler;
 
 import com.elevator.entity.ElevatorCar;
 import com.elevator.entity.ElevatorRequest;
+import com.elevator.enums.Direction;
 import com.elevator.enums.RequestType;
 
 import java.util.List;
@@ -23,13 +24,35 @@ public class NearestElevatorStrategy
 
         for (ElevatorCar elevator : elevators) {
 
-            int distance = Math.abs(
-                    elevator.getCurrentFloor()
-                            - request.getSourceFloor());
+            // Prefer IDLE elevators first
+            if (elevator.getDirection() == Direction.IDLE) {
 
-            if (distance < minDistance) {
-                minDistance = distance;
-                bestElevator = elevator;
+                int distance = Math.abs(
+                        elevator.getCurrentFloor()
+                                - request.getSourceFloor());
+
+                if (distance < minDistance) {
+
+                    minDistance = distance;
+                    bestElevator = elevator;
+                }
+            }
+        }
+
+        // fallback if no idle elevator
+        if (bestElevator == null) {
+
+            for (ElevatorCar elevator : elevators) {
+
+                int distance = Math.abs(
+                        elevator.getCurrentFloor()
+                                - request.getSourceFloor());
+
+                if (distance < minDistance) {
+
+                    minDistance = distance;
+                    bestElevator = elevator;
+                }
             }
         }
 
